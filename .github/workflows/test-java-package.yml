@@ -1,9 +1,9 @@
 name: Test java-package input
 
 on:
-  push:
-    branches:
-      - GraalVM
+  # push:
+  #   branches:
+  #     - GraalVM
 
   workflow_dispatch:
 
@@ -22,8 +22,8 @@ jobs:
       with:
         distribution: 'graalvm'
         java-version: '21'
-        java-package: 'jre'
-        # java-package: 'jdk'
+        java-package: 'jdk'
+       
 
     - name: Verify Java version
       run: java -version
