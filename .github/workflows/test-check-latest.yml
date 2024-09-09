@@ -21,7 +21,7 @@ jobs:
       uses: graalvm/setup-java@fniephaus/graalvm
       with:
         distribution: 'graalvm'
-        java-version: '24'
+        java-version: '24-ea'
         check-latest: true
 
     - name: Verify Java version
