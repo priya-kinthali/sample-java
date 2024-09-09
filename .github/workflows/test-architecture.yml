@@ -23,7 +23,7 @@ jobs:
       with:
         distribution: 'graalvm'
         java-version: ${{ matrix.java-version }}
-        architecture: x86
+        architecture: x64
 
     - name: Verify Java version
       run: java -version
