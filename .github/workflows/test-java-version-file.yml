@@ -2,9 +2,9 @@ name: Test java-version-file
 
 
 on:
-  push:
-    branches:
-      - GraalVM
+  # push:
+  #   branches:
+  #     - GraalVM
 
   workflow_dispatch:
 
