@@ -1,8 +1,8 @@
 name: JDK Download Check
 on:
-  push:
-    branches:
-      - GraalVM
+  # push:
+  #   branches:
+  #     - GraalVM
 
   workflow_dispatch:
 jobs:
