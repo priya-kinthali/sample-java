@@ -1,9 +1,9 @@
 name: Test Install multiple JDKs
 
 on:
-  # push:
-  #   branches:
-  #     - GraalVM
+  push:
+    branches:
+      - GraalVM
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,6 @@ jobs:
           distribution: 'graalvm'
           java-version: |
             21
-            11
             17
 
       - name: Verify JDK 8
