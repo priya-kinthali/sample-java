@@ -1,0 +1,22 @@
+name: JDK Download Check
+on:
+  push:
+    branches:
+      - GraalVM
+
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distribution: ['temurin','zulu','oracle','microsoft']
+    steps:
+      - name: Checkout Code
+        uses: actions/cache@v3
+      - name: Steup Java with ${{ matrix.distribution }}
+        uses: actions/setup-java@main
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: 17
+          check-latest: true
