@@ -1,0 +1,24 @@
+name: Test PublishinG to GPR using Gradle
+on:
+  push:
+    branches:
+      - GraalVM
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Java
+      uses: graalvm/setup-java@fniephaus/graalvm
+      with:
+        distribution: 'sapmachine'
+        java-version: '21'
+    - name: Build with Gradle
+      run: gradle build
+    - name: Publish to GitHub Packages
+      run: gradle publish
+      env:
+        USERNAME: ${{ github.actor }}
+        PASSWORD: ${{ secrets.GITHUB_TOKEN }}
