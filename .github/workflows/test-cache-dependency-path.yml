@@ -25,7 +25,7 @@ jobs:
 
       - name: Set up Java with Maven cache
         if: matrix.build-system == 'maven'
-        uses: graalvm:fniephaus/graalvm
+        uses: graalvm/setup-java@fniephaus/graalvm
         with:
           distribution: 'graalvm'
           java-version: '21'
@@ -34,7 +34,7 @@ jobs:
 
       - name: Set up Java with Gradle cache
         if: matrix.build-system == 'gradle'
-        uses: graalvm:fniephaus/graalvm
+        uses: graalvm/setup-java@fniephaus/graalvm
         with:
           distribution: 'graalvm'
           java-version: '21'
@@ -45,7 +45,7 @@ jobs:
 
       - name: Set up Java with sbt cache
         if: matrix.build-system == 'sbt'
-        uses: graalvm:fniephaus/graalvm
+        uses: graalvm/setup-java@fniephaus/graalvm
         with:
           distribution: 'graalvm'
           java-version: '21'
