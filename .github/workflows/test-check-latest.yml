@@ -1,9 +1,9 @@
 name: Test check-latest option
 
 on:
-  push:
-    branches:
-      - GraalVM
+  # push:
+  #   branches:
+  #     - GraalVM
 
   workflow_dispatch:
 
