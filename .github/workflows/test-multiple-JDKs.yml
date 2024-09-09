@@ -3,7 +3,7 @@ name: Test Install multiple JDKs
 on:
   # push:
   #   branches:
-  #     - graalvm
+  #     - GraalVM
   workflow_dispatch:
 
 jobs:

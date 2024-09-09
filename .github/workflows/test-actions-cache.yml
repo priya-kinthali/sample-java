@@ -3,7 +3,7 @@ name: Test actions/cache with 'maven', 'gradle', 'sbt'
 on:
   # push:
   #   branches:
-  #     - graalvm
+  #     - GraalVM
   workflow_dispatch:
 
 jobs:

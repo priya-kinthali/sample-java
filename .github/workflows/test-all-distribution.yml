@@ -3,7 +3,7 @@ name: Test distributions cache
 on:
   # push:
   #   branches:
-  #     - graalvm
+  #     - GraalVM
   workflow_dispatch:
 
 jobs:

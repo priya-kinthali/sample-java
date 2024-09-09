@@ -3,7 +3,7 @@ name: Test cache option
 on:
   # push:
   #   branches:
-  #     - graalvm
+  #     - GraalVM
   workflow_dispatch:
 
 jobs:

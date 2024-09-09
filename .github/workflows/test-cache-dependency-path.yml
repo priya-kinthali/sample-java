@@ -2,7 +2,7 @@ name: Test cache option with dependency paths 'maven', 'gradle', 'sbt'
 on:
   # push:
   #   branches:
-  #     - graalvm
+  #     - GraalVM
   workflow_dispatch:
 
 jobs:
