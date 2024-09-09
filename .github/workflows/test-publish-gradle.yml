@@ -13,7 +13,7 @@ jobs:
     - name: Set up Java
       uses: graalvm/setup-java@fniephaus/graalvm
       with:
-        distribution: 'sapmachine'
+        distribution: 'graalvm'
         java-version: '21'
     - name: Build with Gradle
       run: gradle build
