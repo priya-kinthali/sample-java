@@ -1,9 +1,9 @@
 name: Test distributions cache
 
 on:
-  push:
-    branches:
-      - sapMachine
+  # push:
+  #   branches:
+  #     - graalvm
   workflow_dispatch:
 
 jobs:

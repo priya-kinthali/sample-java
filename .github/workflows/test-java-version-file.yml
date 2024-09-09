@@ -4,7 +4,7 @@ name: Test java-version-file
 on:
   # push:
   #   branches:
-  #     - sapMachine
+  #     - graalvm
 
   workflow_dispatch:
 
@@ -19,9 +19,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Java
-      uses: Shegox/setup-java@main
+      uses: graalvm:fniephaus/graalvm
       with:
-        distribution: 'sapmachine'
+        distribution: 'graalvm'
         java-version-file: '.java-version'
 
     - name: Verify Java version

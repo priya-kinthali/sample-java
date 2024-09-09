@@ -1,9 +1,9 @@
 name: Test Supported version syntax
 
 on:
-  # push:
-  #   branches:
-  #     - sapMachine
+  push:
+    branches:
+      - GraalVM
 
   workflow_dispatch:
 
@@ -26,9 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Java ${{ matrix.java }}
-        uses: Shegox/setup-java@main
+        uses: graalvm:fniephaus/graalvm
         with:
-          distribution: 'sapmachine'
+          distribution: 'graalvm'
           java-version: ${{ matrix.java }}
       - run: java -version
       - run: javac -version

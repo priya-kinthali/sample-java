@@ -1,4 +1,4 @@
-name := "java-sapmachine"
+name := "java-graalvm"
 
 version := "0.1"
 

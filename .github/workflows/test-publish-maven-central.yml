@@ -3,7 +3,7 @@ name: Publish to Maven Central
 on:
   # push:
   #   branches:
-  #     - sapMachine
+  #     - graalvm
 
   workflow_dispatch:
 
@@ -17,7 +17,7 @@ jobs:
     - name: Set up Apache Maven Central
       uses: gowridurgad/setup-java-fork@testing-snap
       with: # running setup-java again overwrites the settings.xml
-        distribution: 'sapmachine'
+        distribution: 'graalvm'
         java-version: '11'
         server-id: central # Value of the distributionManagement/repository/id field of the pom.xml
         server-username: MAVEN_USERNAME # env variable for username in deploy

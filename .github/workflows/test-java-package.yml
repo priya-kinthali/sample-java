@@ -1,9 +1,9 @@
 name: Test java-package input
 
 on:
-  push:
-    branches:
-      - sapMachine
+  # push:
+  #   branches:
+  #     - graalvm
 
   workflow_dispatch:
 
@@ -18,9 +18,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Java
-      uses: Shegox/setup-java@main
+      uses: graalvm:fniephaus/graalvm
       with:
-        distribution: 'sapmachine'
+        distribution: 'graalvm'
         java-version: '21'
         java-package: 'jre'
 

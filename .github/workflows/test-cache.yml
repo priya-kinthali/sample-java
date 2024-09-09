@@ -3,7 +3,7 @@ name: Test cache option
 on:
   # push:
   #   branches:
-  #     - sapMachine
+  #     - graalvm
   workflow_dispatch:
 
 jobs:
@@ -26,9 +26,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java
-        uses: Shegox/setup-java@main
+        uses: graalvm:fniephaus/graalvm
         with:
-          distribution: 'sapmachine'
+          distribution: 'graalvm'
           java-version: '21'
           cache: ${{ matrix.build-system }}
 

@@ -2,7 +2,7 @@ name: Test cache option with dependency paths 'maven', 'gradle', 'sbt'
 on:
   # push:
   #   branches:
-  #     - sapMachine
+  #     - graalvm
   workflow_dispatch:
 
 jobs:
@@ -25,18 +25,18 @@ jobs:
 
       - name: Set up Java with Maven cache
         if: matrix.build-system == 'maven'
-        uses: Shegox/setup-java@main
+        uses: graalvm:fniephaus/graalvm
         with:
-          distribution: 'sapmachine'
+          distribution: 'graalvm'
           java-version: '21'
           cache: 'maven'
           cache-dependency-path: 'pom.xml'
 
       - name: Set up Java with Gradle cache
         if: matrix.build-system == 'gradle'
-        uses: Shegox/setup-java@main
+        uses: graalvm:fniephaus/graalvm
         with:
-          distribution: 'sapmachine'
+          distribution: 'graalvm'
           java-version: '21'
           cache: 'gradle'
           cache-dependency-path: |
@@ -45,9 +45,9 @@ jobs:
 
       - name: Set up Java with sbt cache
         if: matrix.build-system == 'sbt'
-        uses: Shegox/setup-java@main
+        uses: graalvm:fniephaus/graalvm
         with:
-          distribution: 'sapmachine'
+          distribution: 'graalvm'
           java-version: '21'
           cache: 'sbt'
           cache-dependency-path: build.sbt
