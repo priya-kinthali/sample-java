@@ -22,8 +22,8 @@ jobs:
       with:
         distribution: 'graalvm'
         java-version: '21'
-        # java-package: 'jre'
-        java-package: 'jdk'
+        java-package: 'jre'
+        # java-package: 'jdk'
 
     - name: Verify Java version
       run: java -version
