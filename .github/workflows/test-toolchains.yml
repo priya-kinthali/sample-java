@@ -19,3 +19,5 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
+    - name: View toolchains.xml contents
+      run: cat ~/.m2/toolchains.xml
