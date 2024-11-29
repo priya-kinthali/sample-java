@@ -28,7 +28,7 @@ jobs:
 
       - name: Build with Gradle
         if: matrix.build-system == 'gradle'
-        run: ./gradlew build 
+        run: ./gradlew build --no-daemon
 
       - name: Verify Java version
         run: java -version
