@@ -21,8 +21,8 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'graalvm'
-        java-version: '17.0.12'
+        # distribution: 'graalvm'
+        java-version: '17'
         # check-latest: true
 
     - name: Verify Java version
