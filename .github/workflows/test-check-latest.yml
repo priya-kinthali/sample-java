@@ -1,9 +1,9 @@
 name: Test check-latest option
 
 on:
-  # push:
-  #   branches:
-  #     - sapMachine
+  push:
+    branches:
+      - sapMachine
 
   workflow_dispatch:
 
@@ -20,9 +20,9 @@ jobs:
     - name: Set up Java
       uses: Shegox/setup-java@main
       with:
-        distribution: 'sapmachine'
-        java-version: '21'
-        check-latest: true
+        distribution: 'graalvm'
+        java-version: '17'
+        # check-latest: true
 
     - name: Verify Java version
       run: java -version
