@@ -23,7 +23,7 @@ jobs:
       with:
         distribution: 'zulu'
         # java-version: '17'
-        java-version-file: '.tool-versions'
+        java-version-file: '.tool-versions' #java 17 #comment
         # check-latest: true
 
     - name: Verify Java version
