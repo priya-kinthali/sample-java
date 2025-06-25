@@ -1,0 +1,39 @@
+name: Test 859
+
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest, macos-13]
+        # distribution: [ 'jetbrains' , 'adopt', 'zulu', 'temurin', 'corretto', 'liberica', 'oracle', 'microsoft', 'semeru', 'dragonwell', 'sapmachine', graalvm]
+        
+    steps:
+      # - name: cache clear
+      #   run: |
+      #     mv "${{ runner.tool_cache }}" "${{ runner.tool_cache }}.old"
+      #     mkdir -p "${{ runner.tool_cache }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        # uses: priyagupta108/setup-java@jetbrains-fix-test
+        uses: actions/setup-java@v4
+          # distribution: ${{ matrix.distribution }}
+          # java-version: '21.0.5-ea'
+        with:
+          distribution: "jetbrains"
+          java-package: "jdk"
+          java-version: "21"
+          check-latest: true
+  
+
+      - name: Verify Java version
+        run: java -version
