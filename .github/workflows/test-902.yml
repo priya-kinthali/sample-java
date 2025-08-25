@@ -1,0 +1,28 @@
+name: Reproduce Cache 400 Error
+
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+
+jobs:
+  test-setup-java-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK with Maven cache
+        uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: maven
+
+      - name: Verify Java version
+        run: java -version
+
+      - name: Verify Maven version
+        run: mvn -version
