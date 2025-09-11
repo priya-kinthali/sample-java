@@ -17,7 +17,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up JDK with Maven cache
+      - name: Clear existing toolcache
+        run: |
+          echo "Clearing existing toolcache..."
+          rm -rf ~/.local/share/ || true
+          rm -rf ~/.toolcache/ || true
+      - name: Set up JDK 
         uses: actions/setup-java@v5
         with:
           distribution: temurin
