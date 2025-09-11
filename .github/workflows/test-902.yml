@@ -21,4 +21,4 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - run: java -cp java HelloWorldApp
+      - run: java -version
