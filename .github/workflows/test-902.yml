@@ -20,8 +20,8 @@ jobs:
       - name: Clear existing toolcache
         run: |
           echo "Clearing existing toolcache..."
-          rm -rf ~/.local/share/ || true
-          rm -rf ~/.toolcache/ || true
+          rm -rf /home/azureuser/actions-runner/_work/_tool/Java_Temurin-Hotspot_jdk/17.0.16-8 || true
+          rm -rf /home/azureuser/actions-runner/_work/_tool/Java_Temurin-Hotspot_jdk/17 || true
       - name: Set up JDK 
         uses: actions/setup-java@v5
         with:
