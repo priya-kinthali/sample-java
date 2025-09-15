@@ -1,0 +1,25 @@
+name: Reproduce Cache 400 Error
+
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+
+jobs:
+  test-setup-java-907:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, windows-11-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 
+        uses: actions/setup-java@v5
+        with:
+          distribution: oracle
+          java-version: 8
+      - run: java -version
