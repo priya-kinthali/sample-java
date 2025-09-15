@@ -11,16 +11,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, windows-11-arm]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up JDK 
+      # - name: Set up JDK 
         # uses: actions/setup-java@v5
-        uses: priya-kinthali/setup-java@test-907
-        with:
-          distribution: oracle
-          java-version: 17
+        # uses: priya-kinthali/setup-java@test-907
+        # with:
+        #   distribution: oracle
+        #   java-version: 17
+      - name: Download Oracle JDK 17
+        run: |
+          # Define the JDK URL and destination path
+          JDK_URL="https://download.oracle.com/java/17/archive/jdk-17_windows-x64_bin.zip"
+          DESTINATION="$env:RUNNER_TEMP\\jdk-17_windows-x64_bin.zip"
+
+          # Use curl to download the JDK
+          curl -L -o $DESTINATION $JDK_URL
+
+          # Verify the file exists
+          if (Test-Path $DESTINATION) {
+            Write-Host "JDK downloaded successfully to $DESTINATION"
+          } else {
+            Write-Host "Failed to download JDK"
+            exit 1
+          }
+        shell: pwsh
       - run: java -version
