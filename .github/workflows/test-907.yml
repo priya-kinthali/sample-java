@@ -25,19 +25,6 @@ jobs:
         #   java-version: 17
       - name: Download Oracle JDK 17
         run: |
-          # Define the JDK URL and destination path
-          JDK_URL="https://download.oracle.com/java/17/archive/jdk-17_windows-x64_bin.zip"
-          DESTINATION="$env:RUNNER_TEMP\\jdk-17_windows-x64_bin.zip"
-
-          # Use curl to download the JDK
-          curl -L -o $DESTINATION $JDK_URL
-
-          # Verify the file exists
-          if (Test-Path $DESTINATION) {
-            Write-Host "JDK downloaded successfully to $DESTINATION"
-          } else {
-            Write-Host "Failed to download JDK"
-            exit 1
-          }
+          curl -v https://download.oracle.com/java/17/archive/jdk-17_windows-x64_bin.zip
         shell: pwsh
       - run: java -version
