@@ -22,9 +22,9 @@ jobs:
         # uses: priya-kinthali/setup-java@test-907
         # with:
         #   distribution: oracle
-        #   java-version: 21
-      - name: Download Oracle JDK 21
+        #   java-version: 11
+      - name: Download Oracle JDK 11
         run: |
-          curl -v -o jdk-21_windows-x64_bin.zip https://download.oracle.com/java/21/archive/jdk-21_windows-x64_bin.zip
+          curl -v -o jdk-11_windows-x64_bin.zip https://download.oracle.com/java/11/archive/jdk-11_windows-x64_bin.zip
         shell: pwsh
       # - run: java -version
