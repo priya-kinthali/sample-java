@@ -22,9 +22,9 @@ jobs:
         # uses: priya-kinthali/setup-java@test-907
         # with:
         #   distribution: oracle
-        #   java-version: 17
-      - name: Download Oracle JDK 17
+        #   java-version: 8
+      - name: Download Oracle JDK 8
         run: |
-          curl -v -o jdk-17_windows-x64_bin.zip https://download.oracle.com/java/17/archive/jdk-17_windows-x64_bin.zip
+          curl -v -o jdk-8_windows-x64_bin.zip https://download.oracle.com/java/8/archive/jdk-8_windows-x64_bin.zip
         shell: pwsh
       # - run: java -version
