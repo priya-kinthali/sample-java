@@ -25,6 +25,6 @@ jobs:
         #   java-version: 17
       - name: Download Oracle JDK 17
         run: |
-          curl https://download.oracle.com/java/17/archive/jdk-17_windows-x64_bin.zip
+          curl -v -o jdk-17_windows-x64_bin.zip https://download.oracle.com/java/17/archive/jdk-17_windows-x64_bin.zip
         shell: pwsh
       # - run: java -version
