@@ -22,5 +22,5 @@ jobs:
         uses: priya-kinthali/setup-java@test-907
         with:
           distribution: oracle
-          java-version: 8
+          java-version: 17
       - run: java -version
