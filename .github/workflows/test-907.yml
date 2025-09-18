@@ -17,14 +17,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      # - name: Set up JDK 
+      - name: Set up JDK 
         # uses: actions/setup-java@v5
-        # uses: priya-kinthali/setup-java@test-907
-        # with:
-        #   distribution: oracle
-        #   java-version: 11
-      - name: Download Oracle JDK 11
-        run: |
-          curl -v -o jdk-11_windows-x64_bin.zip https://download.oracle.com/java/11/archive/jdk-11_windows-x64_bin.zip
-        shell: pwsh
+        uses: priya-kinthali/setup-java@test-907
+        with:
+          distribution: oracle
+          arch: arm64
+          java-version: 11
+      # - name: Download Oracle JDK 11
+      #   run: |
+      #     curl -v -o jdk-11_windows-x64_bin.zip https://download.oracle.com/java/11/archive/jdk-11_windows-x64_bin.zip
+      #   shell: pwsh
       # - run: java -version
