@@ -22,7 +22,7 @@ jobs:
         uses: priya-kinthali/setup-java@test-907
         with:
           distribution: oracle
-          architecture: arm64
+          architecture: abc
           java-version: 17
       # - name: Download Oracle JDK 11
       #   run: |
