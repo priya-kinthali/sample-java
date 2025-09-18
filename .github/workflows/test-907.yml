@@ -23,7 +23,7 @@ jobs:
         with:
           distribution: oracle
           arch: arm64
-          java-version: 11
+          java-version: 17
       # - name: Download Oracle JDK 11
       #   run: |
       #     curl -v -o jdk-11_windows-x64_bin.zip https://download.oracle.com/java/11/archive/jdk-11_windows-x64_bin.zip
