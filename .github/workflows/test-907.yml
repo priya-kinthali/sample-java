@@ -36,6 +36,16 @@ jobs:
 
           # List current rules
           netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
+      - name: Simulate ETIMEDOUT Error
+        shell: pwsh
+        run: |
+          # Attempt to connect to a non-routable IP to simulate timeout
+          $nonRoutableIp = "10.255.255.1"
+          try {
+            Test-Connection -ComputerName $nonRoutableIp -Count 1 -TimeoutSeconds 1
+          } catch {
+            Write-Host "Simulated ETIMEDOUT error by connecting to $nonRoutableIp"
+          }
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
