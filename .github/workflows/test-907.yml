@@ -21,10 +21,10 @@ jobs:
         run: |
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
-      - name: Break DNS for adoptium API
+      - name: Add invalid DNS entry
         run: |
-          # Add invalid DNS entry
-          echo "127.0.0.1 api.adoptium.net" | sudo tee -a /etc/hosts
+          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 api.adoptium.net"
+        shell: pwsh
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
