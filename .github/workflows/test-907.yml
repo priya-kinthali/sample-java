@@ -21,25 +21,12 @@ jobs:
         run: |
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
-      - name: Add invalid DNS entry
-        run: |
-          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 api.adoptium.net"
-          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 maven.apache.org"
-          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 repo1.maven.org"
-        shell: pwsh
-      - name: Simulate network timeout
-        run: |
-          Start-Sleep -Seconds 30
-          Test-Connection -ComputerName "api.adoptium.net" -Count 1 -ErrorAction SilentlyContinue
-        shell: pwsh
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
         with:
           distribution: temurin
           java-version: 17
-        env:
-          TEST_NETWORK_FAILURE: 'true' # Custom environment variable to simulate network failure
         # env:
         #   TEST_NETWORK_FAILURE: 'true'
       # - name: Download Oracle JDK 11
@@ -47,4 +34,18 @@ jobs:
       #     curl -v -o jdk-11_windows-x64_bin.zip https://download.oracle.com/java/11/archive/jdk-11_windows-x64_bin.zip
       #   shell: pwsh
       # - run: java -version
+
+
+              
+      # - name: Add invalid DNS entry
+      #   run: |
+      #     Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 api.adoptium.net"
+      #     Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 maven.apache.org"
+      #     Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 repo1.maven.org"
+      #   shell: pwsh
+      # - name: Simulate network timeout
+      #   run: |
+      #     Start-Sleep -Seconds 30
+      #     Test-Connection -ComputerName "api.adoptium.net" -Count 1 -ErrorAction SilentlyContinue
+      #   shell: pwsh
 
