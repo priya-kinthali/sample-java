@@ -39,12 +39,21 @@ jobs:
       - name: Simulate ETIMEDOUT Error
         shell: pwsh
         run: |
-          # Attempt to connect to a non-routable IP to simulate timeout
-          $nonRoutableIp = "10.255.255.1"
+          # Attempt to connect to a valid IP with a non-responsive port to simulate timeout
+          $timeoutIp = "8.8.8.8" # Google DNS (used as an example)
+          $timeoutPort = 81       # Use a port that is likely closed
           try {
-            Test-Connection -ComputerName $nonRoutableIp -Count 1 -TimeoutSeconds 1
+            $client = New-Object System.Net.Sockets.TcpClient
+            $asyncResult = $client.BeginConnect($timeoutIp, $timeoutPort, $null, $null)
+            $waitHandle = $asyncResult.AsyncWaitHandle
+            if (-not $waitHandle.WaitOne(1000)) { # Timeout set to 1 second
+              throw "Simulated ETIMEDOUT error by connecting to $timeoutIp:$timeoutPort"
+            }
+            $client.EndConnect($asyncResult)
           } catch {
-            Write-Host "Simulated ETIMEDOUT error by connecting to $nonRoutableIp"
+            Write-Host $_
+          } finally {
+            $client.Dispose()
           }
       - name: Set up JDK 
         # uses: actions/setup-java@v5
