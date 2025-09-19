@@ -36,24 +36,16 @@ jobs:
 
           # List current rules
           netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
-      - name: Simulate ETIMEDOUT Error
+      - name: Simulate ECONNREFUSED Error
         shell: pwsh
         run: |
-          # Attempt to connect to a valid IP with a non-responsive port to simulate timeout
-          $timeoutIp = "8.8.8.8" # Google DNS (used as an example)
-          $timeoutPort = 81       # Use a port that is likely closed
+          # Attempt to connect to a closed port on localhost
+          $closedPort = "127.0.0.1:9999"
           try {
             $client = New-Object System.Net.Sockets.TcpClient
-            $asyncResult = $client.BeginConnect($timeoutIp, $timeoutPort, $null, $null)
-            $waitHandle = $asyncResult.AsyncWaitHandle
-            if (-not $waitHandle.WaitOne(1000)) { # Timeout set to 1 second
-              throw "Simulated ETIMEDOUT error by connecting to ${timeoutIp}:${timeoutPort}"
-            }
-            $client.EndConnect($asyncResult)
+            $client.Connect("127.0.0.1", 9999)
           } catch {
-            Write-Host $_
-          } finally {
-            $client.Dispose()
+            Write-Host "Simulated ECONNREFUSED error by connecting to $closedPort"
           }
       - name: Set up JDK 
         # uses: actions/setup-java@v5
