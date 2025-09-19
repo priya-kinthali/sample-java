@@ -21,6 +21,21 @@ jobs:
         run: |
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
+      
+      - name: Block adoptium API endpoints
+        shell: pwsh
+        run: |
+          # Get IPs for api.adoptium.net
+          $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
+
+          # Block each IP
+          foreach ($ip in $adoptiumIps) {
+            Write-Host "Blocking IP: $ip"
+            netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
+          }
+
+          # List current rules
+          netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
@@ -29,6 +44,7 @@ jobs:
           java-version: 17
         env:
           FORCE_TIMEOUT: 'true'
+        timeout-minutes: 2 
         # env:
         #   TEST_NETWORK_FAILURE: 'true'
       # - name: Download Oracle JDK 11
