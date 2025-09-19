@@ -17,6 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Clear Java tool cache
+        run: |
+          Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
+        shell: pwsh
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
