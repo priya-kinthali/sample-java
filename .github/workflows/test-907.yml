@@ -36,6 +36,25 @@ jobs:
 
           # List current rules
           netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
+      - name: Simulate ETIMEDOUT Error
+        shell: pwsh
+        run: |
+          # Attempt to connect to a non-routable IP to simulate timeout
+          $nonRoutableIp = "10.255.255.1"
+          try {
+            $client = New-Object System.Net.Sockets.TcpClient
+            $asyncResult = $client.BeginConnect($nonRoutableIp, 80, $null, $null)
+            $waitHandle = $asyncResult.AsyncWaitHandle
+            if (-not $waitHandle.WaitOne(5000)) { # Timeout set to 5 seconds
+              throw "Simulated ETIMEDOUT error by connecting to $nonRoutableIp:80"
+            }
+            $client.EndConnect($asyncResult)
+          } catch {
+            Write-Host $_
+          } finally {
+            $client.Dispose()
+          }
+
       - name: Simulate ECONNREFUSED Error
         shell: pwsh
         run: |
