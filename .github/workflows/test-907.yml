@@ -36,36 +36,10 @@ jobs:
 
           # List current rules
           netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
-      - name: Simulate ETIMEDOUT Error
-        shell: pwsh
+      - name: Break DNS for adoptium API (Windows)
         run: |
-          # Attempt to connect to a non-routable IP to simulate timeout
-          $nonRoutableIp = "10.255.255.1"
-          try {
-            $client = New-Object System.Net.Sockets.TcpClient
-            $asyncResult = $client.BeginConnect($nonRoutableIp, 80, $null, $null)
-            $waitHandle = $asyncResult.AsyncWaitHandle
-            if (-not $waitHandle.WaitOne(5000)) { # Timeout set to 5 seconds
-              throw "Simulated ETIMEDOUT error by connecting to $nonRoutableIp:80"
-            }
-            $client.EndConnect($asyncResult)
-          } catch {
-            Write-Host $_
-          } finally {
-            $client.Dispose()
-          }
-
-      - name: Simulate ECONNREFUSED Error
+          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 api.adoptium.net"
         shell: pwsh
-        run: |
-          # Attempt to connect to a closed port on localhost
-          $closedPort = "127.0.0.1:9999"
-          try {
-            $client = New-Object System.Net.Sockets.TcpClient
-            $client.Connect("127.0.0.1", 9999)
-          } catch {
-            Write-Host "Simulated ECONNREFUSED error by connecting to $closedPort"
-          }
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
