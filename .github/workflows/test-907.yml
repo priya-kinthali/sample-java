@@ -21,14 +21,18 @@ jobs:
         run: |
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
+      - name: Break DNS for adoptium API
+        run: |
+          # Add invalid DNS entry
+          echo "127.0.0.1 api.adoptium.net" | sudo tee -a /etc/hosts
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
         with:
           distribution: temurin
           java-version: 17
-        env:
-          TEST_NETWORK_FAILURE: 'true'
+        # env:
+        #   TEST_NETWORK_FAILURE: 'true'
       # - name: Download Oracle JDK 11
       #   run: |
       #     curl -v -o jdk-11_windows-x64_bin.zip https://download.oracle.com/java/11/archive/jdk-11_windows-x64_bin.zip
