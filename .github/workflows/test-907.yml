@@ -27,6 +27,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+        env:
+          FORCE_TIMEOUT: 'true'
         # env:
         #   TEST_NETWORK_FAILURE: 'true'
       # - name: Download Oracle JDK 11
