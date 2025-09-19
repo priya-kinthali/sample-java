@@ -47,7 +47,7 @@ jobs:
             $asyncResult = $client.BeginConnect($timeoutIp, $timeoutPort, $null, $null)
             $waitHandle = $asyncResult.AsyncWaitHandle
             if (-not $waitHandle.WaitOne(1000)) { # Timeout set to 1 second
-              throw "Simulated ETIMEDOUT error by connecting to $timeoutIp:$timeoutPort"
+              throw "Simulated ETIMEDOUT error by connecting to ${timeoutIp}:${timeoutPort}"
             }
             $client.EndConnect($asyncResult)
           } catch {
