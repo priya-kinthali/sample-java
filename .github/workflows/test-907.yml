@@ -33,6 +33,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+        env:
+          TEST_NETWORK_FAILURE: 'true' # Custom environment variable to simulate network failure
         # env:
         #   TEST_NETWORK_FAILURE: 'true'
       # - name: Download Oracle JDK 11
