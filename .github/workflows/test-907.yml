@@ -24,6 +24,8 @@ jobs:
       - name: Add invalid DNS entry
         run: |
           Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 api.adoptium.net"
+          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 maven.apache.org"
+          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "127.0.0.1 repo1.maven.org"
         shell: pwsh
       - name: Set up JDK 
         # uses: actions/setup-java@v5
