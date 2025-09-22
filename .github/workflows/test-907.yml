@@ -36,21 +36,21 @@ jobs:
 
       #     # List current rules
       #     netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
-      - name: Break DNS for adoptium API (Windows) #econnrefused
-        run: |
-          $hostsPath = "C:\Windows\System32\drivers\etc\hosts"
-          $entry = "127.0.0.1 api.adoptium.net"
-          if (-not (Select-String -Path $hostsPath -Pattern $entry -Quiet)) {
-              Add-Content -Path $hostsPath -Value $entry
-          }
-        shell: pwsh
+      # - name: Break DNS for adoptium API (Windows) #econnrefused
+      #   run: |
+      #     $hostsPath = "C:\Windows\System32\drivers\etc\hosts"
+      #     $entry = "127.0.0.1 api.adoptium.net"
+      #     if (-not (Select-String -Path $hostsPath -Pattern $entry -Quiet)) {
+      #         Add-Content -Path $hostsPath -Value $entry
+      #     }
+      #   shell: pwsh
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: temurin
           # architecture: abc
-          java-version: 21
+          java-version: 17
         env:
           FORCE_TIMEOUT: 'true'
         timeout-minutes: 2 
