@@ -49,7 +49,7 @@ jobs:
         uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: temurin
-          # architecture: abc
+          architecture: abc
           java-version: 17
         env:
           FORCE_TIMEOUT: 'true'
