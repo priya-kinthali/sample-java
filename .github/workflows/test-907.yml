@@ -47,8 +47,9 @@ jobs:
       
       - name: Simulate ECONNRESET via proxy
         run: |
-          export http_proxy=http://localhost:9999
+          $env:http_proxy = "http://localhost:9999"
           curl http://example.com || echo "Expected error"
+        shell: pwsh
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
