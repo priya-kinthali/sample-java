@@ -45,11 +45,16 @@ jobs:
       #     }
       #   shell: pwsh
       
-      - name: Simulate ECONNRESET via proxy
+      - name: Set up proxy to simulate ECONNRESET
         run: |
-          $env:http_proxy = "http://localhost:9999"
-          curl http://example.com || echo "Expected error"
-        shell: pwsh
+          nohup ncat -l 9999 --keep-open --exec "/bin/sh -c 'sleep 1; kill -9 $$'" &
+        shell: bash
+
+      - name: Set http_proxy
+        run: |
+          echo "Setting up proxy"
+          export http_proxy=http://localhost:9999
+        shell: bash
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
