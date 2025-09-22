@@ -60,8 +60,8 @@ jobs:
         uses: priya-kinthali/setup-java@test-907
         with:
           distribution: temurin
-          architecture: abc
-          java-version: 17
+          # architecture: abc
+          java-version: 21
         env:
           FORCE_TIMEOUT: 'true'
         timeout-minutes: 2 
