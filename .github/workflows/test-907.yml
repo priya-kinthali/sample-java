@@ -22,17 +22,17 @@ jobs:
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
       
-      # - name: Block adoptium API endpoints #eaccess
-      #   shell: pwsh
-      #   run: |
-      #     # Get IPs for api.adoptium.net
-      #     $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
+      - name: Block adoptium API endpoints #eaccess
+        shell: pwsh
+        run: |
+          # Get IPs for api.adoptium.net
+          $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
 
-      #     # Block each IP
-      #     foreach ($ip in $adoptiumIps) {
-      #       Write-Host "Blocking IP: $ip"
-      #       netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
-      #     }
+          # Block each IP
+          foreach ($ip in $adoptiumIps) {
+            Write-Host "Blocking IP: $ip"
+            netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
+          }
 
       #     # List current rules
       #     netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
@@ -44,20 +44,9 @@ jobs:
       #         Add-Content -Path $hostsPath -Value $entry
       #     }
       #   shell: pwsh
-      
-      - name: Set up proxy to simulate ECONNRESET
-        run: |
-          nohup ncat -l 9999 --keep-open --exec "/bin/sh -c 'sleep 1; kill -9 $$'" &
-        shell: bash
-
-      - name: Set http_proxy
-        run: |
-          echo "Setting up proxy"
-          export http_proxy=http://localhost:9999
-        shell: bash
       - name: Set up JDK 
         # uses: actions/setup-java@v5
-        uses: priya-kinthali/setup-java@test-907
+        uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: temurin
           # architecture: abc
