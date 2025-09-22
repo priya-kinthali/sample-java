@@ -44,6 +44,11 @@ jobs:
       #         Add-Content -Path $hostsPath -Value $entry
       #     }
       #   shell: pwsh
+      
+      - name: Simulate ECONNRESET via proxy
+        run: |
+          export http_proxy=http://localhost:9999
+          curl http://example.com || echo "Expected error"
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@test-907
