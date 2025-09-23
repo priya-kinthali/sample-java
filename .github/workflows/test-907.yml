@@ -22,20 +22,20 @@ jobs:
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
       
-      # - name: Block adoptium API endpoints #eaccess
-      #   shell: pwsh
-      #   run: |
-      #     # Get IPs for api.adoptium.net
-      #     $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
+      - name: Block adoptium API endpoints #eaccess
+        shell: pwsh
+        run: |
+          # Get IPs for api.adoptium.net
+          $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
 
-      #     # Block each IP
-      #     foreach ($ip in $adoptiumIps) {
-      #       Write-Host "Blocking IP: $ip"
-      #       netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
-      #     }
+          # Block each IP
+          foreach ($ip in $adoptiumIps) {
+            Write-Host "Blocking IP: $ip"
+            netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
+          }
 
-      #     # List current rules
-      #     netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
+          # List current rules
+          netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
       # - name: Break DNS for adoptium API (Windows) #econnrefused
       #   run: |
       #     $hostsPath = "C:\Windows\System32\drivers\etc\hosts"
@@ -49,8 +49,8 @@ jobs:
         uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: temurin
-          architecture: abc
-          java-version: 17
+          # architecture: abc
+          java-version: 21
         env:
           FORCE_TIMEOUT: 'true'
         timeout-minutes: 2 
