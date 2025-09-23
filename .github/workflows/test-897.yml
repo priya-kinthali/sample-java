@@ -1,0 +1,49 @@
+name: Reproduce Cache 400 Error
+
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+
+jobs:
+  test-setup-java-907:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Clear Java tool cache
+        run: |
+          Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
+        shell: pwsh
+      
+      # - name: Block adoptium API endpoints
+      #   shell: pwsh
+      #   run: |
+      #     # Get IPs for api.adoptium.net
+      #     $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
+
+      #     # Block each IP
+      #     foreach ($ip in $adoptiumIps) {
+      #       Write-Host "Blocking IP: $ip"
+      #       netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
+      #     }
+
+      #     # List current rules
+      #     netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
+      - name: Simulate Timeout for Adoptium API
+        shell: pwsh
+        run: |
+          # Redirect api.adoptium.net to a non-routable IP (e.g., 10.255.255.1)
+          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "10.255.255.1 api.adoptium.net"
+      - name: Set up JDK 
+        uses: actions/setup-java@v5
+        # uses: priya-kinthali/setup-java@enhance-error-logging
+        with:
+          distribution: temurin
+          java-version: 21
