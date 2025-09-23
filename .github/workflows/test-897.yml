@@ -1,4 +1,4 @@
-name: Reproduce Cache 400 Error
+name: Enhance error logging
 
 on:
   push:
@@ -22,27 +22,20 @@ jobs:
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
       
-      # - name: Block adoptium API endpoints
-      #   shell: pwsh
-      #   run: |
-      #     # Get IPs for api.adoptium.net
-      #     $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
-
-      #     # Block each IP
-      #     foreach ($ip in $adoptiumIps) {
-      #       Write-Host "Blocking IP: $ip"
-      #       netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
-      #     }
-
-      #     # List current rules
-      #     netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
-      - name: Simulate Multiple Network Issues for Adoptium API
+      - name: Block adoptium API endpoints
         shell: pwsh
         run: |
-          # Redirect multiple required endpoints to a non-routable IP (e.g., 10.255.255.1)
-          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "10.255.255.1 api.adoptium.net"
-          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "10.255.255.1 github.com"
-          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "10.255.255.1 dist.adoptium.net"
+          # Get IPs for api.adoptium.net
+          $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
+
+          # Block each IP
+          foreach ($ip in $adoptiumIps) {
+            Write-Host "Blocking IP: $ip"
+            netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
+          }
+
+          # List current rules
+          netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
       - name: Set up JDK 
         uses: actions/setup-java@v5
         # uses: priya-kinthali/setup-java@enhance-error-logging
