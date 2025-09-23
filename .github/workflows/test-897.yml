@@ -36,11 +36,13 @@ jobs:
 
       #     # List current rules
       #     netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
-      - name: Simulate Timeout for Adoptium API
+      - name: Simulate Multiple Network Issues for Adoptium API
         shell: pwsh
         run: |
-          # Redirect api.adoptium.net to a non-routable IP (e.g., 10.255.255.1)
+          # Redirect multiple required endpoints to a non-routable IP (e.g., 10.255.255.1)
           Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "10.255.255.1 api.adoptium.net"
+          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "10.255.255.1 github.com"
+          Add-Content -Path "C:\Windows\System32\drivers\etc\hosts" -Value "10.255.255.1 dist.adoptium.net"
       - name: Set up JDK 
         uses: actions/setup-java@v5
         # uses: priya-kinthali/setup-java@enhance-error-logging
