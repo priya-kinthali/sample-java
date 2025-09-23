@@ -45,8 +45,8 @@ jobs:
       #     }
       #   shell: pwsh
       - name: Set up JDK 
-        # uses: actions/setup-java@v5
-        uses: priya-kinthali/setup-java@enhance-error-logging
+        uses: actions/setup-java@v5
+        # uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: temurin
           # architecture: abc
