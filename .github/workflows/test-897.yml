@@ -22,8 +22,8 @@ jobs:
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
       - name: Set up JDK 
-        uses: actions/setup-java@v5
-        # uses: priya-kinthali/setup-java@enhance-error-logging
+        # uses: actions/setup-java@v5
+        uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: oracle
           java-version: 8
