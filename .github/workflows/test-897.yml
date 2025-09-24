@@ -21,18 +21,22 @@ jobs:
         run: |
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
-      - name: Break DNS for adoptium API (Windows) 
+      
+      - name: Block adoptium API endpoints
+        shell: pwsh
         run: |
-          $hostsPath = "C:\Windows\System32\drivers\etc\hosts"
-          $entry = "127.0.0.1 api.adoptium.net"
-          if (-not (Select-String -Path $hostsPath -Pattern $entry -Quiet)) {
-              Add-Content -Path $hostsPath -Value $entry
+          # Get IPs for api.adoptium.net
+          $adoptiumIps = (Resolve-DnsName -Name api.adoptium.net).IPAddress
+          # Block each IP
+          foreach ($ip in $adoptiumIps) {
+            Write-Host "Blocking IP: $ip"
+            netsh advfirewall firewall add rule name="BlockAdoptiumAPI_$ip" dir=out action=block remoteip=$ip
           }
-        shell: pwsh 
+          # List current rules
+          netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
       - name: Set up JDK 
         # uses: actions/setup-java@v5
-        uses: priya-kinthali/setup-java@test-907
+        uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: temurin
           java-version: 21
-
