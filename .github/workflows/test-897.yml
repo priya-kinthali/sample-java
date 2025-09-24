@@ -23,7 +23,7 @@ jobs:
         shell: pwsh
       - name: Set up JDK 
         # uses: actions/setup-java@v5
-        uses: priya-kinthali/setup-java@enhance-error-logging
+        uses: priya-kinthali/setup-java@test-907
         with:
           distribution: oracle
           java-version: 8
