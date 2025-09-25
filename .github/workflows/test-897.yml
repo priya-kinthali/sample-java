@@ -21,9 +21,18 @@ jobs:
         run: |
           Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
         shell: pwsh
+      - name: Break DNS for adoptium API (Windows) 
+        run: |
+          $hostsPath = "C:\Windows\System32\drivers\etc\hosts"
+          $entry = "127.0.0.1 api.adoptium.net"
+          if (-not (Select-String -Path $hostsPath -Pattern $entry -Quiet)) {
+              Add-Content -Path $hostsPath -Value $entry
+          }
+        shell: pwsh 
+
       - name: Set up JDK 
         # uses: actions/setup-java@v5
         uses: priya-kinthali/setup-java@enhance-error-logging
         with:
-          distribution: oracle
-          java-version: 8
+          distribution: temurin
+          java-version: 21
