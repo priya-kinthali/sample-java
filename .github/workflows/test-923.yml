@@ -1,0 +1,42 @@
+name: Reproduce Cache 400 Error
+
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+
+jobs:
+  test-setup-java-907:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Clear Java tool cache
+        run: |
+          Remove-Item -Recurse -Force "C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk"
+        shell: pwsh
+      
+      - name: Break DNS for adoptium API (Windows) #econnrefused
+        run: |
+          $hostsPath = "C:\Windows\System32\drivers\etc\hosts"
+          $entry = "127.0.0.1 api.adoptium.net"
+          if (-not (Select-String -Path $hostsPath -Pattern $entry -Quiet)) {
+              Add-Content -Path $hostsPath -Value $entry
+          }
+        shell: pwsh
+      - name: Set up JDK 
+        # uses: actions/setup-java@v5
+        uses: priya-kinthali/setup-java@test-907
+        with:
+          distribution: temurin
+          # architecture: abc
+          java-version: 21
+        env:
+          FORCE_TIMEOUT: 'true'
+        timeout-minutes: 2 
