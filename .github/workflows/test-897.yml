@@ -36,8 +36,7 @@ jobs:
           netsh advfirewall firewall show rule name=all | Select-String "BlockAdoptiumAPI"
       - name: Set up JDK 
         # uses: actions/setup-java@v5
-        # uses: priya-kinthali/setup-java@enhance-error-logging
-        uses: priya-kinthali/setup-java@test-907
+        uses: priya-kinthali/setup-java@enhance-error-logging
         with:
           distribution: temurin
           java-version: 21
