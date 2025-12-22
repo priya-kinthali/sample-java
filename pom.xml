@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.priya-kinthali</groupId>
-	<artifactId>setup-test-java-sample</artifactId>
+	<artifactId>setup-test-java</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>setup-test-java-sample</name>
+	<name>setup-test-java</name>
 	<description>sample code</description>
 	<url>https://github.com/priya-kinthali/sample-java</url>
 
