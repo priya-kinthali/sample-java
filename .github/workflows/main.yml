@@ -1,8 +1,8 @@
 name: Publish Maven package to GPR
 
 on:
-  # push:
-  #   branches: [ "GPR" ]
+  push:
+    branches: [ "GPR" ]
   workflow_dispatch:
 
 jobs:
