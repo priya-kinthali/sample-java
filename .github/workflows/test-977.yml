@@ -1,0 +1,179 @@
+name: "SemVer not-found error (all distros)"
+
+on:
+  push:
+    branches: [ "GPR" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  adopt:
+    name: "adopt: 999.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: adopt
+          java-version: "999.x"
+          java-package: jdk
+          architecture: x64
+
+  base:
+    name: "base: 18.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: base
+          java-version: "18.x"
+          java-package: jdk
+          architecture: x64
+
+  corretto:
+    name: "corretto: 18.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: corretto
+          java-version: "18.x"
+          java-package: jdk
+          architecture: x64
+
+  dragonwell:
+    name: "dragonwell: 18.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: dragonwell
+          java-version: "18.x"
+          java-package: jdk
+          architecture: x64
+
+  graalvm:
+    name: "graalvm: 18.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: graalvm
+          java-version: "18.x"
+          java-package: jdk
+          architecture: x64
+
+  jetbrains:
+    name: "jetbrains: 18.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: jetbrains
+          java-version: "18.x"
+          java-package: jdk
+          architecture: x64
+
+  liberica:
+    name: "liberica: 999.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: liberica
+          java-version: "999.x"
+          java-package: jdk
+          architecture: x64
+
+  microsoft:
+    name: "microsoft: 18.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: microsoft
+          java-version: "18.x"
+          java-package: jdk
+          architecture: x64
+
+  oracle:
+    name: "oracle: 18.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: oracle
+          java-version: "18.x"
+          java-package: jdk
+          architecture: x64
+
+  sapmachine:
+    name: "sapmachine: 999.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: sapmachine
+          java-version: "999.x"
+          java-package: jdk
+          architecture: x64
+
+  semeru:
+    name: "semeru: 999.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: semeru
+          java-version: "999.x"
+          java-package: jdk
+          architecture: x64
+
+  temurin:
+    name: "temurin: 999.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "999.x"
+          java-package: jdk
+          architecture: x64
+
+  zulu:
+    name: "zulu: 999.x not found"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: "999.x"
+          java-package: jdk
+          architecture: x64
