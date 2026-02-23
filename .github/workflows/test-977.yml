@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: adopt
           java-version: "999.x"
@@ -27,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: base
           java-version: "18.x"
@@ -40,8 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: corretto
           java-version: "18.x"
@@ -53,8 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: dragonwell
           java-version: "18.x"
@@ -66,8 +66,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: graalvm
           java-version: "18.x"
@@ -79,8 +79,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: jetbrains
           java-version: "18.x"
@@ -92,8 +92,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: liberica
           java-version: "999.x"
@@ -105,8 +105,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: microsoft
           java-version: "18.x"
@@ -118,8 +118,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: oracle
           java-version: "18.x"
@@ -131,8 +131,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: sapmachine
           java-version: "999.x"
@@ -144,8 +144,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: semeru
           java-version: "999.x"
@@ -157,8 +157,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "999.x"
@@ -170,8 +170,8 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # - uses: chiranjib-swain/setup-java@improve-java-error-messaging
-      - uses: actions/setup-java@v5
+      - uses: chiranjib-swain/setup-java@improve-java-error-messaging
+      # - uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: "999.x"
