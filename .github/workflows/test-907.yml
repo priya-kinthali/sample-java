@@ -44,16 +44,11 @@ jobs:
       #         Add-Content -Path $hostsPath -Value $entry
       #     }
       #   shell: pwsh
-      - name: Start a local HTTP proxy that always fails
-        run: |
-          nohup ncat -lk 3128 --sh-exec "echo -e 'HTTP/1.1 500 Internal Server Error\r\n\r\n'" &
-          echo "HTTP_PROXY=http://localhost:3128" >> $GITHUB_ENV
-          echo "HTTPS_PROXY=http://localhost:3128" >> $GITHUB_ENV
       - name: Set up JDK 
         uses: actions/setup-java@v5
         # uses: priya-kinthali/setup-java@enhance-error-logging
         with:
-          distribution: temurin
+          distribution: invalid-distribution
           # architecture: abc
           java-version: 21
         env:
