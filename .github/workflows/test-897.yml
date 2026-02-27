@@ -1,9 +1,9 @@
 name: Enhance error logging
 
 on:
-  push:
-    branches:
-      - sapMachine
+  # push:
+  #   branches:
+  #     - sapMachine
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
