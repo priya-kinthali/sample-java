@@ -1,0 +1,31 @@
+
+name: Build Desktop Release
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest] # Include macos-latest for all except where overridden
+        build-system: ['gradle']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up JBR
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'jetbrains'
+          java-version: '25'
+          cache: 'gradle'
+      - name: Build with Gradle
+        if: matrix.build-system == 'gradle'
+        run: ./gradlew build --no-daemon
+
+      - name: Verify Java version
+        run: java -version

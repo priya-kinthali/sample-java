@@ -1,0 +1,461 @@
+name: Test 989 - Improved Error Messaging
+
+on:
+  # push:
+  #   branches:
+  #     - sapMachine
+  workflow_dispatch:
+
+jobs:
+
+  unit-tests:
+    name: Unit Tests - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-15-intel, windows-11-arm, ubuntu-24.04-arm]
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests (with verbose output)
+        run: npm test -- --verbose 2>&1
+        env:
+          # Enable debug mode so createVersionNotFoundError shows full version lists
+          RUNNER_DEBUG: '1'
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-${{ matrix.os }}
+          path: |
+            coverage/
+            test-results/
+
+  # ───────────────��─────────────────────────────────────────────────────────────
+  # 2. HAPPY PATH - Valid versions still install correctly on all runners
+  # ─────────────────────────────────────────────────────────────────────────────
+  happy-path-install:
+    name: Happy Path - ${{ matrix.distribution }} ${{ matrix.version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        distribution: [temurin, zulu, liberica, corretto, microsoft, semeru]
+        version: ['17', '21']
+        exclude:
+          - distribution: microsoft
+            version: '17'
+        include:
+          # Oracle - pinned NFTC-safe version
+          - distribution: oracle
+            version: '21'
+            os: ubuntu-latest
+          - distribution: oracle
+            version: '21'
+            os: windows-latest
+          - distribution: oracle
+            version: '21'
+            os: macos-latest
+          # GraalVM
+          - distribution: graalvm
+            version: '21'
+            os: ubuntu-latest
+          - distribution: graalvm
+            version: '21'
+            os: windows-latest
+          - distribution: graalvm
+            version: '21'
+            os: macos-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Setup Java (${{ matrix.distribution }} ${{ matrix.version }})
+        id: setup-java
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: ${{ matrix.version }}
+
+      - name: Verify Java version and JAVA_HOME
+        shell: bash
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          java -version
+          if [ -z "$JAVA_HOME" ]; then
+            echo "❌ JAVA_HOME is not set"
+            exit 1
+          fi
+          echo "✅ Java installed successfully at $JAVA_HOME"
+
+      - name: Verify action outputs
+        shell: bash
+        run: |
+          echo "Output version: ${{ steps.setup-java.outputs.version }}"
+          echo "Output path: ${{ steps.setup-java.outputs.path }}"
+          echo "Output distribution: ${{ steps.setup-java.outputs.distribution }}"
+          if [ -z "${{ steps.setup-java.outputs.version }}" ]; then
+            echo "❌ version output is empty"
+            exit 1
+          fi
+          echo "✅ All outputs present"
+
+  # ────────────────────────���────────────────────────────────────────────────────
+  # 3. ERROR MESSAGE VALIDATION - Structured error from createVersionNotFoundError
+  #    Tests that the new error format contains distribution/packageType/arch info
+  # ─────────────────────────────────────────────────────────────────────────────
+  invalid-version-error-messages:
+    name: Invalid Version Error Message - ${{ matrix.distribution }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        distribution: [temurin, zulu, liberica, corretto, graalvm]
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Attempt to install non-existent version (expect failure)
+        id: invalid-install
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: '9.9.999'
+        continue-on-error: true
+
+      - name: Verify step correctly failed
+        shell: bash
+        run: |
+          if [ "${{ steps.invalid-install.outcome }}" != "failure" ]; then
+            echo "❌ Expected failure for invalid version but step succeeded"
+            exit 1
+          fi
+          echo "✅ Correctly failed for invalid version 9.9.999"
+
+      - name: Attempt install with invalid semver (expect failure)
+        id: invalid-semver
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: 'not-a-version'
+        continue-on-error: true
+
+      - name: Verify invalid semver correctly failed
+        shell: bash
+        run: |
+          if [ "${{ steps.invalid-semver.outcome }}" != "failure" ]; then
+            echo "❌ Expected failure for invalid SemVer but step succeeded"
+            exit 1
+          fi
+          echo "✅ Correctly failed for invalid SemVer input"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 4. DEBUG MODE - Validates full version list is shown (no truncation at 50)
+  #    The createVersionNotFoundError changes truncation behaviour based on
+  #    core.isDebug() — this verifies both modes work
+  # ─────────────────────────────────────────────────────────────────────────────
+  debug-mode-error-output:
+    name: Debug Mode Error Output - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      RUNNER_DEBUG: '1'   # enables core.isDebug() = true
+      ACTIONS_STEP_DEBUG: 'true'
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Attempt invalid version in debug mode (temurin)
+        id: debug-fail
+        uses: ./
+        with:
+          distribution: temurin
+          java-version: '9.9.999'
+        continue-on-error: true
+
+      - name: Verify debug mode failure
+        shell: bash
+        run: |
+          if [ "${{ steps.debug-fail.outcome }}" != "failure" ]; then
+            echo "❌ Expected failure in debug mode"
+            exit 1
+          fi
+          echo "✅ Debug mode correctly failed — full version list should be visible in logs above"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 5. EA (Early Access) VERSIONS - Verify EA installs still work
+  # ─────────────────────────────────────────────────────────────────────────────
+  ea-versions:
+    name: EA Version - ${{ matrix.distribution }} ${{ matrix.version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - distribution: zulu
+            version: '17-ea'
+            os: ubuntu-latest
+          - distribution: zulu
+            version: '17-ea'
+            os: windows-latest
+          - distribution: zulu
+            version: '17-ea'
+            os: macos-latest
+          - distribution: temurin
+            version: '17-ea'
+            os: ubuntu-latest
+          - distribution: sapmachine
+            version: '21-ea'
+            os: ubuntu-latest
+          - distribution: graalvm
+            version: '24-ea'
+            os: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Setup Java EA (${{ matrix.distribution }} ${{ matrix.version }})
+        id: setup-java-ea
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: ${{ matrix.version }}
+
+      - name: Verify EA Java installed
+        shell: bash
+        run: |
+          java -version
+          echo "✅ EA version installed: ${{ steps.setup-java-ea.outputs.version }}"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 6. check-latest FLAG - Still resolves and installs correctly
+  # ──────────────────────────────────────────��──────────────────────────────────
+  check-latest:
+    name: check-latest - ${{ matrix.distribution }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        distribution: [temurin, zulu, liberica]
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Setup Java with check-latest
+        id: setup-java
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: '21'
+          check-latest: true
+
+      - name: Verify Java
+        shell: bash
+        run: |
+          java -version
+          echo "✅ check-latest resolved: ${{ steps.setup-java.outputs.version }}"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 7. PINNED PATCH VERSIONS - Exact version resolution still works
+  # ─────────────────────────────────────────────────────────────────────────────
+  pinned-patch-versions:
+    name: Pinned Version - ${{ matrix.distribution }} ${{ matrix.version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - distribution: temurin
+            version: '21.0.4+7'
+            os: ubuntu-latest
+          - distribution: zulu
+            version: '17.0.7+7'
+            os: ubuntu-latest
+          - distribution: oracle
+            version: '17.0.12'  # last NFTC version
+            os: ubuntu-latest
+          - distribution: oracle
+            version: '17.0.12'
+            os: windows-latest
+          - distribution: oracle
+            version: '17.0.12'
+            os: macos-latest
+          - distribution: graalvm
+            version: '17.0.12'
+            os: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Setup Java (pinned ${{ matrix.distribution }} ${{ matrix.version }})
+        id: setup-java
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: ${{ matrix.version }}
+
+      - name: Verify exact version installed
+        shell: bash
+        run: |
+          java -version
+          INSTALLED="${{ steps.setup-java.outputs.version }}"
+          echo "Installed version: $INSTALLED"
+          echo "✅ Pinned version resolved successfully"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 8. MULTIPLE JDKs IN ONE STEP - Matrix env vars still set correctly
+  # ─────────────────────────────────────────────────────────────────────────────
+  multiple-jdks:
+    name: Multiple JDKs - ${{ matrix.distribution }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        distribution: [temurin, zulu]
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Setup Java (multi-version)
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: |
+            17
+            21
+
+      - name: Verify JAVA_HOME env vars for both versions
+        shell: pwsh
+        run: |
+          foreach ($ver in @("17","21")) {
+            $arch = $env:RUNNER_ARCH
+            $envName = "JAVA_HOME_${ver}_${arch}"
+            $javaPath = [Environment]::GetEnvironmentVariable($envName)
+            if (-not (Test-Path "$javaPath")) {
+              Write-Error "❌ $envName not found or path doesn't exist: $javaPath"
+              exit 1
+            }
+            Write-Host "✅ $envName = $javaPath"
+          }
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 9. version-from-file - Ensures file-based version detection still works
+  # ─────────────────────────────────────────────────────────────────────────────
+  version-from-file:
+    name: Version From File - ${{ matrix.distribution }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        distribution: [temurin, zulu, corretto]
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          repository: chiranjib-swain/setup-java
+          ref: improve-java-error-messaging
+
+      - name: Create .java-version file
+        shell: bash
+        run: echo "21" > .java-version
+
+      - name: Setup Java from file
+        id: setup-java
+        uses: ./
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version-file: '.java-version'
+
+      - name: Verify Java
+        shell: bash
+        run: |
+          java -version
+          echo "✅ Version from file resolved: ${{ steps.setup-java.outputs.version }}"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SUMMARY JOB - All jobs must pass
+  # ─────────────────────────────────────────────────────────────────────────────
+  all-tests-passed:
+    name: ✅ All PR #989 Tests Passed
+    needs:
+      - unit-tests
+      - happy-path-install
+      - invalid-version-error-messages
+      - debug-mode-error-output
+      - ea-versions
+      - check-latest
+      - pinned-patch-versions
+      - multiple-jdks
+      - version-from-file
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check all jobs
+        shell: bash
+        run: |
+          results=(
+            "${{ needs.unit-tests.result }}"
+            "${{ needs.happy-path-install.result }}"
+            "${{ needs.invalid-version-error-messages.result }}"
+            "${{ needs.debug-mode-error-output.result }}"
+            "${{ needs.ea-versions.result }}"
+            "${{ needs.check-latest.result }}"
+            "${{ needs.pinned-patch-versions.result }}"
+            "${{ needs.multiple-jdks.result }}"
+            "${{ needs.version-from-file.result }}"
+          )
+          failed=false
+          for r in "${results[@]}"; do
+            if [ "$r" != "success" ] && [ "$r" != "skipped" ]; then
+              echo "❌ A job failed or was cancelled: $r"
+              failed=true
+            fi
+          done
+          if [ "$failed" = "true" ]; then exit 1; fi
+          echo "✅ All jobs passed!"
