@@ -1,0 +1,74 @@
+name: Test setup-java Alpine Linux Support (PR #674)
+
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+
+jobs:
+  setup-java-alpine-linux:
+    name: ${{ matrix.distribution }} ${{ matrix.version }} (jdk-x64) - alpine-linux - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    container:
+      image: alpine:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        distribution: ['temurin', 'sapmachine']
+        version: ['21', '17']
+    steps:
+      - name: Install bash (Alpine prerequisite)
+        run: apk add --no-cache bash git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: setup-java
+        id: setup-java
+        uses: actions/setup-java@v5
+        # uses: gdams/setup-java@alpine
+        with:
+          java-version: ${{ matrix.version }}
+          distribution: ${{ matrix.distribution }}
+
+      - name: Verify Java (inline equivalent of __tests__/verify-java.sh)
+        shell: bash
+        run: |
+          set -e
+          EXPECTED_VERSION="${{ matrix.version }}"
+          JAVA_DIR="${{ steps.setup-java.outputs.path }}"
+
+          echo "Expected version: $EXPECTED_VERSION"
+          echo "JAVA_HOME:        $JAVA_HOME"
+          echo "Action path:      $JAVA_DIR"
+
+          if [ -z "$JAVA_DIR" ] || [ ! -d "$JAVA_DIR" ]; then
+            echo "ERROR: setup-java output path is missing or not a directory"
+            exit 1
+          fi
+
+          if [ "$JAVA_HOME" != "$JAVA_DIR" ]; then
+            echo "ERROR: JAVA_HOME ($JAVA_HOME) != setup-java path ($JAVA_DIR)"
+            exit 1
+          fi
+
+          "$JAVA_HOME/bin/java" -version
+          ACTUAL_VERSION=$("$JAVA_HOME/bin/java" -version 2>&1 | head -n1)
+          echo "Reported: $ACTUAL_VERSION"
+
+          case "$ACTUAL_VERSION" in
+            *\"$EXPECTED_VERSION*) echo "Version matches" ;;
+            *) echo "ERROR: java -version output does not contain $EXPECTED_VERSION"; exit 1 ;;
+          esac
+
+      - name: Verify Java is musl-linked (Alpine sanity check)
+        shell: bash
+        run: |
+          set -e
+          if ldd "$JAVA_HOME/bin/java" 2>/dev/null | grep -q 'ld-linux'; then
+            echo "ERROR: Java binary is glibc-linked, not musl"
+            exit 1
+          fi
+          echo "Java binary is musl-linked"
