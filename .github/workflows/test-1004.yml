@@ -1,9 +1,9 @@
 
 name: Build Desktop Release
 on:
-  push:
-    branches:
-      - sapMachine
+  # push:
+  #   branches:
+  #     - sapMachine
   workflow_dispatch:
 
 jobs:

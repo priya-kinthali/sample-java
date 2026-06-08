@@ -27,8 +27,8 @@ jobs:
 
       - name: setup-java
         id: setup-java
-        uses: actions/setup-java@v5
-        # uses: gdams/setup-java@alpine
+        # uses: actions/setup-java@v5
+        uses: gdams/setup-java@alpine
         with:
           java-version: ${{ matrix.version }}
           distribution: ${{ matrix.distribution }}
