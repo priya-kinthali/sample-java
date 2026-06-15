@@ -1,9 +1,9 @@
 name: Test setup-java Alpine Linux Support (PR #674)
 
 on:
-  push:
-    branches:
-      - sapMachine
+  # push:
+  #   branches:
+  #     - sapMachine
   workflow_dispatch:
 
 jobs:

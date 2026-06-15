@@ -1,0 +1,242 @@
+name: Test setup-java maven cache (PR #453)
+
+# Validates actions/setup-java#453:
+#   - Adds  ~/.m2/wrapper/dists  to cached paths for `cache: maven`
+#   - Adds  .mvn/wrapper/maven-wrapper.properties  to the hash key inputs
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  # Baseline: stock setup-java@v5, no PR changes.
+  baseline-v5:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: mvn -B -ntp -DskipTests package
+
+  # -------------------------------------------------------------------------
+  # 1, 2 & 10: cold run populates ~/.m2/wrapper/dists and the post step saves
+  # it, across Linux / macOS / Windows.
+  # -------------------------------------------------------------------------
+  cold-run-cross-os:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: setup-java (PR #453)
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Generate mvnw scripts from committed properties
+        run: mvn -N -B wrapper:wrapper
+
+      - name: Run wrapper (downloads maven into ~/.m2/wrapper/dists)
+        shell: bash
+        run: ./mvnw -B -ntp -version
+
+      - name: Assert wrapper dist dir exists and is non-empty
+        shell: bash
+        run: |
+          set -eux
+          test -d "$HOME/.m2/wrapper/dists"
+          find "$HOME/.m2/wrapper/dists" -name 'apache-maven-*-bin.zip' | grep .
+
+  # -------------------------------------------------------------------------
+  # Warm run: depends on cold-run so its post-save populated the cache.
+  # On this run, ~/.m2/wrapper/dists must already exist BEFORE mvnw runs,
+  # and mvnw must NOT re-download Maven.
+  # -------------------------------------------------------------------------
+  warm-run:
+    needs: cold-run-cross-os
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: setup-java (expect cache HIT for wrapper dists)
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Assert wrapper dist was restored BEFORE mvnw runs
+        run: |
+          set -eux
+          test -d "$HOME/.m2/wrapper/dists"
+          find "$HOME/.m2/wrapper/dists" -name 'apache-maven-*-bin.zip' | grep .
+
+      - name: Generate mvnw and run; must NOT re-download maven
+        run: |
+          mvn -N -B wrapper:wrapper
+          ./mvnw -B -ntp -version 2>&1 | tee mvnw.log
+          ! grep -E 'Downloading.+apache-maven-.+-bin\.zip' mvnw.log
+
+  # -------------------------------------------------------------------------
+  # 3: bumping the Maven version in maven-wrapper.properties must change the
+  # cache primary key.
+  # -------------------------------------------------------------------------
+  key-changes-on-wrapper-version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - id: base
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - name: Bump maven version in wrapper properties
+        run: |
+          sed -i 's|apache-maven-3\.9\.6|apache-maven-3.9.9|g' .mvn/wrapper/maven-wrapper.properties
+          cat .mvn/wrapper/maven-wrapper.properties
+      - id: bumped
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - name: Primary keys must differ
+        run: |
+          echo "base   = ${{ steps.base.outputs.cache-primary-key }}"
+          echo "bumped = ${{ steps.bumped.outputs.cache-primary-key }}"
+          test "${{ steps.base.outputs.cache-primary-key }}" != "${{ steps.bumped.outputs.cache-primary-key }}"
+
+  # -------------------------------------------------------------------------
+  # 4: editing pom.xml must still change the key (pre-existing input).
+  # -------------------------------------------------------------------------
+  key-changes-on-pom-change:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - id: base
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - run: sed -i 's|</properties>|<pr453.marker>x</pr453.marker></properties>|' pom.xml
+      - id: changed
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - run: test "${{ steps.base.outputs.cache-primary-key }}" != "${{ steps.changed.outputs.cache-primary-key }}"
+
+  # -------------------------------------------------------------------------
+  # 5: touching an unrelated file must NOT change the cache key.
+  # -------------------------------------------------------------------------
+  key-stable-on-unrelated-change:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - id: base
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - run: echo "noise" > UNRELATED.txt
+      - id: again
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - run: test "${{ steps.base.outputs.cache-primary-key }}" = "${{ steps.again.outputs.cache-primary-key }}"
+
+  # -------------------------------------------------------------------------
+  # 6: backwards compat. Only pom.xml, no wrapper props -> must still work.
+  # -------------------------------------------------------------------------
+  pom-only-backcompat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: rm -rf .mvn
+      - uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - run: mvn -B -ntp -DskipTests package
+
+  # -------------------------------------------------------------------------
+  # 7: updated error message when neither pom.xml nor wrapper props exist.
+  # Expected log substring (per PR's __tests__/cache.test.ts update):
+  #   matched to [**/pom.xml,.mvn/wrapper/maven-wrapper.properties]
+  # -------------------------------------------------------------------------
+  error-message-when-no-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Delete every pom.xml and the wrapper props
+        run: |
+          find . -name pom.xml -delete
+          rm -rf .mvn
+      - id: run
+        continue-on-error: true
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - name: Assert step failed (then inspect log for the new substring)
+        run: test "${{ steps.run.outcome }}" = "failure"
+
+  # -------------------------------------------------------------------------
+  # 8: cache-dependency-path override still works.
+  # -------------------------------------------------------------------------
+  custom-cache-dependency-path:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: yeikel/setup-java@cache/mvn-wrapper
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: pom.xml
+      - run: mvn -B -ntp -DskipTests package
+
+  # -------------------------------------------------------------------------
+  # 9: wrapper dir exists but maven-wrapper.properties is missing.
+  # The glob should match nothing for that pattern and key falls back to
+  # pom.xml only — action must still succeed.
+  # -------------------------------------------------------------------------
+  missing-wrapper-properties:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: rm -f .mvn/wrapper/maven-wrapper.properties
+      - uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - run: mvn -B -ntp -DskipTests package
+
+  # -------------------------------------------------------------------------
+  # 10: matrix of Java versions — cache keys must not collide.
+  # -------------------------------------------------------------------------
+  matrix-java-versions:
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['17', '21']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - id: setup
+        uses: yeikel/setup-java@cache/mvn-wrapper
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - run: |
+          echo "java=${{ matrix.java }} primary-key=${{ steps.setup.outputs.cache-primary-key }}"
+          mvn -N -B wrapper:wrapper
+          ./mvnw -B -ntp -version
+
+  # -------------------------------------------------------------------------
+  # 11: fresh runner — explicitly wipe ~/.m2/wrapper before setup-java.
+  # Confirms the action creates and caches the dir from scratch.
+  # -------------------------------------------------------------------------
+  fresh-runner-no-existing-dists:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: rm -rf ~/.m2/wrapper
+      - uses: yeikel/setup-java@cache/mvn-wrapper
+        with: { distribution: temurin, java-version: '17', cache: maven }
+      - run: |
+          mvn -N -B wrapper:wrapper
+          ./mvnw -B -ntp -version
+          test -d "$HOME/.m2/wrapper/dists"
+          find "$HOME/.m2/wrapper/dists" -name 'apache-maven-*-bin.zip' | grep .
