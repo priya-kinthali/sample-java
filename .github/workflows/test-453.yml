@@ -88,27 +88,32 @@ jobs:
 
   # -------------------------------------------------------------------------
   # 3: bumping the Maven version in maven-wrapper.properties must change the
-  # cache primary key.
+  # cache primary key. setup-java doesn't expose `cache-primary-key`, so we
+  # assert the equivalent hashFiles() over the PR's input set.
   # -------------------------------------------------------------------------
   key-changes-on-wrapper-version-bump:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - id: base
+      - name: Exercise setup-java once (cache MISS expected)
         uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - id: before
+        run: echo "h=${{ hashFiles('**/pom.xml', '.mvn/wrapper/maven-wrapper.properties') }}" >> "$GITHUB_OUTPUT"
       - name: Bump maven version in wrapper properties
         run: |
           sed -i 's|apache-maven-3\.9\.6|apache-maven-3.9.9|g' .mvn/wrapper/maven-wrapper.properties
           cat .mvn/wrapper/maven-wrapper.properties
-      - id: bumped
-        uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
-      - name: Primary keys must differ
+      - id: after
+        run: echo "h=${{ hashFiles('**/pom.xml', '.mvn/wrapper/maven-wrapper.properties') }}" >> "$GITHUB_OUTPUT"
+      - name: Hash inputs (and therefore the cache key) must differ
         run: |
-          echo "base   = ${{ steps.base.outputs.cache-primary-key }}"
-          echo "bumped = ${{ steps.bumped.outputs.cache-primary-key }}"
-          test "${{ steps.base.outputs.cache-primary-key }}" != "${{ steps.bumped.outputs.cache-primary-key }}"
+          echo "before=${{ steps.before.outputs.h }}"
+          echo "after =${{ steps.after.outputs.h }}"
+          test "${{ steps.before.outputs.h }}" != "${{ steps.after.outputs.h }}"
 
   # -------------------------------------------------------------------------
   # 4: editing pom.xml must still change the key (pre-existing input).
@@ -117,14 +122,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - id: base
-        uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
+      - uses: yeikel/setup-java@cache/mvn-wrapper
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - id: before
+        run: echo "h=${{ hashFiles('**/pom.xml', '.mvn/wrapper/maven-wrapper.properties') }}" >> "$GITHUB_OUTPUT"
       - run: sed -i 's|</properties>|<pr453.marker>x</pr453.marker></properties>|' pom.xml
-      - id: changed
-        uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
-      - run: test "${{ steps.base.outputs.cache-primary-key }}" != "${{ steps.changed.outputs.cache-primary-key }}"
+      - id: after
+        run: echo "h=${{ hashFiles('**/pom.xml', '.mvn/wrapper/maven-wrapper.properties') }}" >> "$GITHUB_OUTPUT"
+      - run: |
+          echo "before=${{ steps.before.outputs.h }}"
+          echo "after =${{ steps.after.outputs.h }}"
+          test "${{ steps.before.outputs.h }}" != "${{ steps.after.outputs.h }}"
 
   # -------------------------------------------------------------------------
   # 5: touching an unrelated file must NOT change the cache key.
@@ -133,14 +144,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - id: base
-        uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
+      - uses: yeikel/setup-java@cache/mvn-wrapper
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - id: before
+        run: echo "h=${{ hashFiles('**/pom.xml', '.mvn/wrapper/maven-wrapper.properties') }}" >> "$GITHUB_OUTPUT"
       - run: echo "noise" > UNRELATED.txt
-      - id: again
-        uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
-      - run: test "${{ steps.base.outputs.cache-primary-key }}" = "${{ steps.again.outputs.cache-primary-key }}"
+      - id: after
+        run: echo "h=${{ hashFiles('**/pom.xml', '.mvn/wrapper/maven-wrapper.properties') }}" >> "$GITHUB_OUTPUT"
+      - run: |
+          echo "before=${{ steps.before.outputs.h }}"
+          echo "after =${{ steps.after.outputs.h }}"
+          test "${{ steps.before.outputs.h }}" = "${{ steps.after.outputs.h }}"
 
   # -------------------------------------------------------------------------
   # 6: backwards compat. Only pom.xml, no wrapper props -> must still work.
@@ -151,7 +168,10 @@ jobs:
       - uses: actions/checkout@v6
       - run: rm -rf .mvn
       - uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
       - run: mvn -B -ntp -DskipTests package
 
   # -------------------------------------------------------------------------
@@ -170,7 +190,10 @@ jobs:
       - id: run
         continue-on-error: true
         uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
       - name: Assert step failed (then inspect log for the new substring)
         run: test "${{ steps.run.outcome }}" = "failure"
 
@@ -200,11 +223,15 @@ jobs:
       - uses: actions/checkout@v6
       - run: rm -f .mvn/wrapper/maven-wrapper.properties
       - uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
       - run: mvn -B -ntp -DskipTests package
 
   # -------------------------------------------------------------------------
-  # 10: matrix of Java versions — cache keys must not collide.
+  # 10: matrix of Java versions — must run successfully for both JDKs and
+  # populate the wrapper dist on each.
   # -------------------------------------------------------------------------
   matrix-java-versions:
     strategy:
@@ -214,16 +241,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - id: setup
-        uses: yeikel/setup-java@cache/mvn-wrapper
+      - uses: yeikel/setup-java@cache/mvn-wrapper
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
           cache: maven
       - run: |
-          echo "java=${{ matrix.java }} primary-key=${{ steps.setup.outputs.cache-primary-key }}"
           mvn -N -B wrapper:wrapper -Dtype=bin
           ./mvnw -B -ntp -version
+          test -d "$HOME/.m2/wrapper/dists"
 
   # -------------------------------------------------------------------------
   # 11: fresh runner — explicitly wipe ~/.m2/wrapper before setup-java.
@@ -235,7 +261,10 @@ jobs:
       - uses: actions/checkout@v6
       - run: rm -rf ~/.m2/wrapper
       - uses: yeikel/setup-java@cache/mvn-wrapper
-        with: { distribution: temurin, java-version: '17', cache: maven }
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
       - run: |
           mvn -N -B wrapper:wrapper -Dtype=bin
           ./mvnw -B -ntp -version
