@@ -41,7 +41,7 @@ jobs:
           cache: maven
 
       - name: Generate mvnw scripts from committed properties
-        run: mvn -N -B wrapper:wrapper
+        run: mvn -N -B wrapper:wrapper -Dtype=bin
 
       - name: Run wrapper (downloads maven into ~/.m2/wrapper/dists)
         shell: bash
@@ -52,7 +52,8 @@ jobs:
         run: |
           set -eux
           test -d "$HOME/.m2/wrapper/dists"
-          find "$HOME/.m2/wrapper/dists" -name 'apache-maven-*-bin.zip' | grep .
+          ls -R "$HOME/.m2/wrapper/dists"
+          find "$HOME/.m2/wrapper/dists" -type d -name 'apache-maven-*' | grep .
 
   # -------------------------------------------------------------------------
   # Warm run: depends on cold-run so its post-save populated the cache.
@@ -76,11 +77,12 @@ jobs:
         run: |
           set -eux
           test -d "$HOME/.m2/wrapper/dists"
-          find "$HOME/.m2/wrapper/dists" -name 'apache-maven-*-bin.zip' | grep .
+          ls -R "$HOME/.m2/wrapper/dists"
+          find "$HOME/.m2/wrapper/dists" -type d -name 'apache-maven-*' | grep .
 
       - name: Generate mvnw and run; must NOT re-download maven
         run: |
-          mvn -N -B wrapper:wrapper
+          mvn -N -B wrapper:wrapper -Dtype=bin
           ./mvnw -B -ntp -version 2>&1 | tee mvnw.log
           ! grep -E 'Downloading.+apache-maven-.+-bin\.zip' mvnw.log
 
@@ -220,7 +222,7 @@ jobs:
           cache: maven
       - run: |
           echo "java=${{ matrix.java }} primary-key=${{ steps.setup.outputs.cache-primary-key }}"
-          mvn -N -B wrapper:wrapper
+          mvn -N -B wrapper:wrapper -Dtype=bin
           ./mvnw -B -ntp -version
 
   # -------------------------------------------------------------------------
@@ -235,7 +237,7 @@ jobs:
       - uses: yeikel/setup-java@cache/mvn-wrapper
         with: { distribution: temurin, java-version: '17', cache: maven }
       - run: |
-          mvn -N -B wrapper:wrapper
+          mvn -N -B wrapper:wrapper -Dtype=bin
           ./mvnw -B -ntp -version
           test -d "$HOME/.m2/wrapper/dists"
-          find "$HOME/.m2/wrapper/dists" -name 'apache-maven-*-bin.zip' | grep .
+          find "$HOME/.m2/wrapper/dists" -type d -name 'apache-maven-*' | grep .
