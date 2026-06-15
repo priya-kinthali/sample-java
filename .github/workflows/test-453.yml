@@ -1,10 +1,9 @@
 name: Test setup-java maven cache (PR #453)
 
-# Validates actions/setup-java#453:
-#   - Adds  ~/.m2/wrapper/dists  to cached paths for `cache: maven`
-#   - Adds  .mvn/wrapper/maven-wrapper.properties  to the hash key inputs
-
 on:
+  push:
+    branches:
+      - sapMachine
   workflow_dispatch:
 
 jobs:
