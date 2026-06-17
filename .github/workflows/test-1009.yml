@@ -1,0 +1,71 @@
+name: Test setup-java semver handling
+
+on:
+  push:
+    branches:
+      - sapMachine
+  workflow_dispatch:
+
+jobs:
+  test-with-v5-fails:
+    runs-on: ubuntu-latest
+    name: "v5 — JBR install (EXPECTED TO FAIL)"
+    continue-on-error: true  # don't block the workflow
+    steps:
+      - name: Set up JBR 25 with setup-java@v5
+        id: setup
+        uses: actions/setup-java@v5
+        with:
+          distribution: jetbrains
+          java-version: "25"
+          java-package: jdk+jcef
+
+      - name: Print Java version (won't reach here if the above fails)
+        if: steps.setup.outcome == 'success'
+        run: java -version
+
+      - name: Report failure
+        if: steps.setup.outcome == 'failure'
+        run: |
+          echo "::error::setup-java@v5 failed with 'Invalid Version' error"
+          echo "This is the bug described in issue #1008"
+          echo "The semver library throws on 4-segment versions like 17.0.8.1+1080.1"
+
+  test-with-pr-fix-succeeds:
+    runs-on: ubuntu-latest
+    name: "PR #1009 — JBR install (SHOULD SUCCEED)"
+    steps:
+      - name: Set up JBR 25 with PR fix
+        uses: sproctor/setup-java@main
+        with:
+          distribution: jetbrains
+          java-version: "25"
+          java-package: jdk+jcef
+
+      - name: Verify Java is installed
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
+
+      - name: Run a simple compile test
+        run: |
+          echo 'public class Hello { public static void main(String[] args) { System.out.println("JBR is working!"); } }' > Hello.java
+          javac Hello.java
+          java Hello
+
+
+  test-other-distributions-unaffected:
+    runs-on: ubuntu-latest
+    name: "PR #1009 — Temurin (regression check)"
+    steps:
+      - name: Set up Temurin 21 with PR fix
+        uses: sproctor/setup-java@main
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Verify Java is installed
+        run: |
+          java -version
+          echo "Java version: $(java -version 2>&1 | head -1)"
+          echo "JAVA_HOME=$JAVA_HOME"
