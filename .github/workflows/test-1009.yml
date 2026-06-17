@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: jetbrains
-          java-version: "25"
+          java-version: "25.0.3+480.61"
           
 
       - name: Print Java version (won't reach here if the above fails)
@@ -39,7 +39,7 @@ jobs:
         uses: sproctor/setup-java@main
         with:
           distribution: jetbrains
-          java-version: "25"
+          java-version: "25.0.3+480.61"
         
 
       - name: Verify Java is installed
