@@ -18,7 +18,7 @@ jobs:
         with:
           distribution: jetbrains
           java-version: "25"
-          java-package: jdk+jcef
+          
 
       - name: Print Java version (won't reach here if the above fails)
         if: steps.setup.outcome == 'success'
@@ -40,7 +40,7 @@ jobs:
         with:
           distribution: jetbrains
           java-version: "25"
-          java-package: jdk+jcef
+        
 
       - name: Verify Java is installed
         run: |
